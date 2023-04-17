@@ -23,36 +23,39 @@ app.use(methodOverride('_method'))
 
 
 //Home page Route
-app.get('/', (req, res)=>{
+app.get('/', (req, res) => {
     res.send('<h1>Hello Captains log</h1>')
     // res.send(logs)
 })
 
 //New Route
-app.get('/logs/new', (req, res)=>{
+app.get('/logs/new', (req, res) => {
     res.render('New')
 })
 
+
+
+
 //!create route
-app.get('/logs/create', (req, res)=>{
+app.get('/logs/create', (req, res) => {
     res.send('received')
 })
 
 //Index Route
-app.get('/logs/Index', (req, res)=> {
-    Log.find({}, (error, allLogs)=>{
-        res.render('Index', {logs: allLogs})
+app.get('/logs', (req, res) => {
+    Log.find({}, (error, allLogs) => {
+        res.render('Index', { logs: allLogs })
     })
 })
 
 
 //return the edits form 
-app.get('/logs/:id/edit', (req, res)=>{
-    Log.findById(req.params.id,(error, foundLog)=>{
-        if (!error){
-            res.render('Edit',{log: foundLog})
-        }else{
-            res.send({msg: error.message})
+app.get('/logs/:id/edit', (req, res) => {
+    Log.findById(req.params.id, (error, foundLog) => {
+        if (!error) {
+            res.render('Edit', { log: foundLog })
+        } else {
+            res.send({ msg: error.message })
         }
     })
 })
@@ -60,49 +63,71 @@ app.get('/logs/:id/edit', (req, res)=>{
 
 
 //handle the edit form data
-app.put('/logs/:id', (req, res)=>{
-    if(req.body.isCarryingGoods=== 'on'){
+app.put('/logs/:id', (req, res) => {
+    if (req.body.isCarryingGoods === 'on') {
         req.body.isCarryingGoods = true
-    }else{
-        req.body.isCarryingGoods= false
+    } else {
+        req.body.isCarryingGoods = false
     }
-    Log.findByIdAndUpdate(req.params.id, req.body,{new:true},(error, updatedLog)=>{
+
+
+
+
+    if (req.body.anyBreakages === 'on') {
+        req.body.anyBreakages = true
+    } else {
+        req.body.anyBreakages = false
+    }
+    Log.findByIdAndUpdate(req.params.id, req.body, { new: true }, (error, updatedLog) => {
         res.redirect(`/logs/${req.params.id}`)
-
-
-
-        if(req.body.anyBreakages=== 'on'){
-            req.body.anyBreakages = true
-        }else{
-            req.body.anyBreakages= false
-        }
-        Log.findByIdAndUpdate(req.params.id, req.body,{new:true},(error, updatedLog)=>{
-            res.redirect(`/logs/${req.params.id}`)
-        })
     })
 })
+
+
+
+//post route(accept data from form)
+app.post('/logs', (req, res) => {
+    if (req.body.isCarryingGoods === 'on') {
+        req.body.isCarryingGoods = true;
+    } else {
+        req.body.isCarryingGoods = false
+    }
+
+
+    if (req.body.anyBreakages === 'on') {
+        req.body.anyBreakages = true;
+    } else {
+        req.body.anyBreakages = false
+    }
+    Log.create(req.body, (error, createdLog) => {
+        res.redirect('/logs')
+    })
+})
+
 
 
 //show route
 app.get('/logs/:id', (req, res) => {
     console.log(req.params);
-    Log.findById(req.params.id, (error, foundLog)=>{
-        res.render('Show', {log: foundLog})
+    Log.findById(req.params.id, (error, foundLog) => {
+        res.render('Show', { log: foundLog })
     })
 })
 
 
 
+
+
 //delete route
-app.delete('/logs/:id', (req, res)=>{
-    Log.findByIdAndRemove(req.params.id, (error, deletedLog)=>{
+app.delete('/logs/:id', (req, res) => {
+    Log.findByIdAndRemove(req.params.id, (error, deletedLog) => {
         res.redirect('/logs')
     })
 })
 
 
 //404 page
-app.get('*', (req, res)=>{
+app.get('*', (req, res) => {
     res.redirect('404')
 })
 
